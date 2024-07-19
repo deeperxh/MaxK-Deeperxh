@@ -134,9 +134,11 @@ const login = () => {
 }
 
 onMounted(() => {
-  user.theme()
+  if (user.isEnterprise()) {
+    user.theme()
+  }
   user.asyncGetProfile().then((res) => {
-    if (user.isXPack) {
+    if (user.isXPack && user.XPACK_LICENSE_IS_VALID) {
       loading.value = true
       user
         .getAuthType()

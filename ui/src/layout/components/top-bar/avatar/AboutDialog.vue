@@ -17,22 +17,20 @@
         <span class="label">ISV</span><span>{{ licenseInfo?.isv || '-' }}</span>
       </div>
       <div class="flex">
-        <span class="label">过期时间</span>
+        <span class="label">到期时间</span>
         <span
           >{{ licenseInfo?.expired || '-' }}
-          <span class="danger" v-if="fromNowDate(licenseInfo?.expired)"
+          <span class="danger" v-if="licenseInfo?.expired && fromNowDate(licenseInfo?.expired)"
             >（{{ fromNowDate(licenseInfo?.expired) }}）</span
           ></span
         >
       </div>
       <div class="flex">
-        <span class="label">版本</span
-        ><span>{{
-          licenseInfo?.edition ? EditionType[licenseInfo.edition as keyof typeof EditionType] : '-'
-        }}</span>
+        <span class="label">版本</span><span>{{ user.isXPack ? '专业版' : '社区版' }}</span>
       </div>
       <div class="flex">
-        <span class="label">版本号</span><span>{{ licenseInfo?.licenseVersion || '-' }}</span>
+        <span class="label">版本号</span
+        ><span>{{ licenseInfo?.licenseVersion || user.version }}</span>
       </div>
       <div class="flex">
         <span class="label">序列号</span><span>{{ licenseInfo?.serialNo || '-' }}</span>
@@ -41,7 +39,7 @@
         <span class="label">备注</span><span>{{ licenseInfo?.remark || '-' }}</span>
       </div>
 
-      <div class="mt-16 flex align-center" v-hasPermission="new Role('ADMIN')">
+      <div class="mt-16 flex align-center" v-if="user.isXPack">
         <el-upload
           ref="uploadRef"
           action="#"
@@ -55,15 +53,11 @@
         <el-button class="border-primary ml-16" @click="toSupport">获取技术支持</el-button>
       </div>
     </div>
-
-    <!-- <div class="text-center">{{ $t('layout.topbar.avatar.version') }}:{{ user.version }}</div> -->
   </el-dialog>
 </template>
 <script setup lang="ts">
 import { ref, computed } from 'vue'
 import licenseApi from '@/api/license'
-import { EditionType } from '@/enums/common'
-import { Role } from '@/utils/permission/type'
 import { fromNowDate } from '@/utils/time'
 import useStore from '@/stores'
 const { user } = useStore()
@@ -76,7 +70,10 @@ const loading = ref(false)
 const licenseInfo = ref<any>(null)
 
 const open = () => {
-  getLicenseInfo()
+  if (user.isXPack) {
+    getLicenseInfo()
+  }
+
   aboutDialogVisible.value = true
 }
 
